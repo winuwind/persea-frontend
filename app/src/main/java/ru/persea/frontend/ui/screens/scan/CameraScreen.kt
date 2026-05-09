@@ -1,9 +1,15 @@
 package ru.persea.frontend.ui.screens.scan
 
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.os.Build
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -22,44 +28,69 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.mlkit.vision.barcode.BarcodeScanner
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.common.InputImage
+import java.nio.ByteBuffer
+import java.util.concurrent.Executors
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CameraScreen(onClose: () -> Unit) {
+fun CameraScreen(
+    onClose: () -> Unit,
+    onBarcodeScanned: (String) -> Unit
+) {
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val configuration = LocalConfiguration.current
 
-    val isPortrait =
-        configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // Камера
+        // Камера с анализатором штрих-кодов
         AndroidView(
             factory = { ctx ->
                 val previewView = PreviewView(ctx)
 
-                val cameraProviderFuture =
-                    ProcessCameraProvider.getInstance(ctx)
+                val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
 
                 cameraProviderFuture.addListener({
-
                     val cameraProvider = cameraProviderFuture.get()
 
+                    // Создаем Preview
                     val preview = Preview.Builder().build().also {
                         it.setSurfaceProvider(previewView.surfaceProvider)
                     }
 
-                    val cameraSelector =
-                        CameraSelector.DEFAULT_BACK_CAMERA
+                    // Создаем анализатор изображений для штрих-кодов
+                    val imageAnalysis = ImageAnalysis.Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build()
+
+                    val barcodeScanner = BarcodeScanning.getClient()
+
+                    val analysisExecutor = Executors.newSingleThreadExecutor()
+
+                    imageAnalysis.setAnalyzer(analysisExecutor) { imageProxy ->
+                        scanBarcode(imageProxy, barcodeScanner) { barcode ->
+                            // Останавливаем анализ после нахождения штрих-кода
+                            imageProxy.close()
+                            onBarcodeScanned(barcode)
+                        }
+                        imageProxy.close()
+                    }
+
+                    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
                     cameraProvider.unbindAll()
                     cameraProvider.bindToLifecycle(
                         lifecycleOwner,
                         cameraSelector,
-                        preview
+                        preview,
+                        imageAnalysis
                     )
 
                 }, ContextCompat.getMainExecutor(ctx))
@@ -71,7 +102,8 @@ fun CameraScreen(onClose: () -> Unit) {
 
         FloatingActionButton(
             onClick = {
-                // TODO: здесь будет скан/фото
+                // Мануальный захват фото и сканирование
+                // (опционально, если нужен ручной режим)
             },
             modifier = Modifier
                 .align(
@@ -94,4 +126,30 @@ fun CameraScreen(onClose: () -> Unit) {
                 .clickable { onClose() }
         )
     }
+}
+
+// Функция сканирования штрих-кода из ImageProxy
+@OptIn(ExperimentalGetImage::class)
+private fun scanBarcode(
+    imageProxy: ImageProxy,
+    scanner: BarcodeScanner,
+    onResult: (String) -> Unit
+) {
+    val mediaImage = imageProxy.image ?: return
+
+    val inputImage = InputImage.fromMediaImage(
+        mediaImage,
+        imageProxy.imageInfo.rotationDegrees
+    )
+
+    scanner.process(inputImage)
+        .addOnSuccessListener { barcodes ->
+            barcodes.firstOrNull()?.rawValue?.let { barcode ->
+                onResult(barcode)
+            }
+        }
+        .addOnFailureListener { exception ->
+            // Логирование ошибки
+            exception.printStackTrace()
+        }
 }

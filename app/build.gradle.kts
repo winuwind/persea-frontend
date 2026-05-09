@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "ru.persea.frontend"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -86,4 +86,12 @@ dependencies {
     implementation(libs.converter.gson)
 
     implementation(libs.logging.interceptor)
+
+    implementation(libs.coil.compose)
+
+    // ML Kit Barcode Scanning
+    implementation(libs.barcode.scanning)
+
+    // Для работы с изображениями
+    implementation(libs.androidx.exifinterface)
 }
