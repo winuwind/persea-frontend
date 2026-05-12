@@ -19,6 +19,7 @@ fun ProfileScreen(navController: NavController) {
         }
 
         Button(onClick = {
+
             navController.navigate("history")
         }) {
             Text("Search history")
