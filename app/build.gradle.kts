@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.ui)
 
     // Tests
     testImplementation(libs.junit)

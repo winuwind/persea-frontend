@@ -1,28 +1,31 @@
-package ru.persea.frontend.data.api.products
+package ru.persea.frontend.data.api.auth
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.persea.frontend.config.AppConfig
-import ru.persea.frontend.data.api.users.AuthInterceptor
+import android.util.Log
 
-object ProductRetrofitClient {
+object AuthRetrofitClient {
 
-    private val config = AppConfig.getInstance().product
+    private val config = AppConfig.getInstance().auth
+
+    init {
+        Log.d("AuthRetrofitClient", "Auth URL: ${config.getFullUrl()}/")
+    }
 
     private val client = OkHttpClient.Builder()
-        .addInterceptor(AuthInterceptor())
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         })
         .build()
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl(config.getBaseUrl())
+        .baseUrl("${config.getFullUrl()}/")
         .client(client)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val api: ProductApiService = retrofit.create(ProductApiService::class.java)
+    val api: AuthApiService = retrofit.create(AuthApiService::class.java)
 }

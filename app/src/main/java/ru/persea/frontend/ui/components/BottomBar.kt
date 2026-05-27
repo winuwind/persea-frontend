@@ -22,14 +22,13 @@ fun BottomBar(navController: NavController) {
     val items = listOf(
         BottomItem("scan", Icons.Default.QrCodeScanner, "Scan"),
         BottomItem("search", Icons.Default.Search, "Search"),
-        BottomItem("support", Icons.Default.Info, "Support"),
+        BottomItem("recommendations", Icons.Default.Recommend, "For You"),
+        BottomItem("factors", Icons.Default.BarChart, "Factors"),
         BottomItem("profile", Icons.Default.Person, "Profile")
     )
 
     NavigationBar {
-
         items.forEach { item ->
-
             NavigationBarItem(
                 selected = false,
                 onClick = { navController.navigate(item.route) },

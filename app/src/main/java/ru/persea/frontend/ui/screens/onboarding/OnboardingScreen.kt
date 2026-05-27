@@ -17,24 +17,17 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun OnboardingScreen(onContinue: () -> Unit) {
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFF7BC47F)),
         contentAlignment = Alignment.Center
     ) {
-
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-            Text("Welcome!", fontSize = 28.sp)
-
+            Text("Welcome!", fontSize = 28.sp, color = Color.White)
             Spacer(modifier = Modifier.height(16.dp))
-
-            Text("Slide to continue")
-
+            Text("Slide to continue", color = Color.White)
             Spacer(modifier = Modifier.height(40.dp))
-
             Button(onClick = onContinue) {
                 Text("Continue")
             }

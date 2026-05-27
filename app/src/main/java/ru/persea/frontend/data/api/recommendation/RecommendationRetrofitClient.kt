@@ -1,4 +1,4 @@
-package ru.persea.frontend.data.api.products
+package ru.persea.frontend.data.api.recommendation
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -7,9 +7,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.persea.frontend.config.AppConfig
 import ru.persea.frontend.data.api.users.AuthInterceptor
 
-object ProductRetrofitClient {
+object RecommendationRetrofitClient {
 
-    private val config = AppConfig.getInstance().product
+    private val config = AppConfig.getInstance().recommendation
 
     private val client = OkHttpClient.Builder()
         .addInterceptor(AuthInterceptor())
@@ -24,5 +24,5 @@ object ProductRetrofitClient {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val api: ProductApiService = retrofit.create(ProductApiService::class.java)
+    val api: RecommendationApiService = retrofit.create(RecommendationApiService::class.java)
 }

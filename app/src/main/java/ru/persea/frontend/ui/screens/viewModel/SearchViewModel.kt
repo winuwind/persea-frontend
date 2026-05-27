@@ -1,8 +1,8 @@
 package ru.persea.frontend.ui.screens.viewModel
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -23,11 +23,9 @@ class SearchViewModel : ViewModel() {
     private var searchJob: Job? = null
 
     fun onQueryChanged(query: String) {
-
         searchJob?.cancel()
 
         searchJob = viewModelScope.launch {
-
             delay(300)
 
             if (query.isBlank()) {
@@ -49,11 +47,10 @@ class SearchViewModel : ViewModel() {
         searchJob?.cancel()
 
         searchJob = viewModelScope.launch {
-
             delay(300)
 
             if (query.isBlank()) {
-                suggestions = emptyList()
+                results = emptyList()
                 return@launch
             }
 
@@ -61,14 +58,14 @@ class SearchViewModel : ViewModel() {
 
             try {
                 results = ProductRetrofitClient.api.getProducts(
-                    encoded,
-                    null,
-                    null,
-                    null,
-                    null,
-                    1,
-                    100,
-                    "");
+                    query = encoded,
+                    categoryId = null,
+                    brandIds = null,
+                    minRating = null,
+                    maxRating = null,
+                    page = 1,
+                    size = 100
+                )
             } catch (e: Exception) {
                 results = emptyList()
             }

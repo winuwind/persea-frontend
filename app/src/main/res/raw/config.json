@@ -1,0 +1,25 @@
+{
+  "services": {
+    "auth": {
+      "host": "10.0.2.2",
+      "port": 8080,
+      "protocol": "http",
+      "path": "/realms/persea/protocol/openid-connect/token"
+    },
+    "product": {
+      "host": "10.0.2.2",
+      "port": 8084,
+      "protocol": "http"
+    },
+    "user": {
+      "host": "10.0.2.2",
+      "port": 8085,
+      "protocol": "http"
+    },
+    "recommendation": {
+      "host": "10.0.2.2",
+      "port": 8086,
+      "protocol": "http"
+    }
+  }
+}

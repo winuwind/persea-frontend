@@ -1,19 +1,19 @@
 package ru.persea.frontend.ui.screens.details
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ru.persea.frontend.ui.screens.viewModel.ProductDetailViewModel
@@ -25,7 +25,6 @@ fun ProductDetailScreen(
     navController: NavController,
     viewModel: ProductDetailViewModel = viewModel()
 ) {
-    // Загружаем продукт по ID
     productId?.let { id ->
         viewModel.loadProduct(id)
     }
@@ -33,16 +32,15 @@ fun ProductDetailScreen(
     val product by viewModel.product.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val isFavorite by viewModel.isFavorite.collectAsState()
 
     Scaffold(
         topBar = {
-            androidx.compose.material3.TopAppBar(
-                title = { Text("Product Details") },
+            TopAppBar(
+                title = { Text("Детали продукта") },
                 navigationIcon = {
-                    androidx.compose.material3.IconButton(onClick = { navController.navigateUp() }) {
-                        androidx.compose.material.icons.Icons.Default.ArrowBack.let {
-                            androidx.compose.material3.Icon(it, contentDescription = "Back")
-                        }
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад")
                     }
                 }
             )
@@ -59,13 +57,23 @@ fun ProductDetailScreen(
                     CircularProgressIndicator()
                 }
                 error != null -> {
-                    Text("Error: $error")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Ошибка: $error")
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        Button(onClick = { productId?.let { viewModel.loadProduct(it) } }) {
+                            Text("Повторить")
+                        }
+                    }
                 }
                 product != null -> {
-                    ProductDetailContent(product = product!!)
+                    ProductDetailContent(
+                        product = product!!,
+                        isFavorite = isFavorite,
+                        onFavoriteClick = { productId?.let { viewModel.toggleFavorite(it) {} } }
+                    )
                 }
                 else -> {
-                    Text("Product not found")
+                    Text("Продукт не найден")
                 }
             }
         }

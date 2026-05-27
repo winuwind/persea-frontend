@@ -1,25 +1,12 @@
 package ru.persea.frontend.ui.screens.search
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -31,16 +18,14 @@ fun SearchScreen(
     viewModel: SearchViewModel = viewModel(),
     onProductClick: (Long) -> Unit
 ) {
-
     var query by remember { mutableStateOf("") }
     var isSearchPerformed by remember { mutableStateOf(false) }
     val suggestions = viewModel.suggestions
     val results = viewModel.results
 
     Column(modifier = Modifier.padding(16.dp)) {
-
-        Row (modifier = Modifier.height(60.dp)) {
-            TextField(
+        Row(modifier = Modifier.height(60.dp)) {
+            OutlinedTextField(
                 value = query,
                 onValueChange = {
                     query = it
@@ -52,7 +37,8 @@ fun SearchScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                placeholder = { Text("Search food...") }
+                placeholder = { Text("Поиск продуктов...") },
+                singleLine = true
             )
 
             Button(
@@ -73,15 +59,14 @@ fun SearchScreen(
                     containerColor = Color(0xFF00AFFF)
                 )
             ) {
-                Text(text = "Send")
+                Text("Найти")
             }
         }
 
         if (!isSearchPerformed && suggestions.isNotEmpty()) {
             LazyColumn {
                 items(suggestions) { item ->
-                    Text(
-                        text = item,
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
@@ -90,24 +75,34 @@ fun SearchScreen(
                                 viewModel.onQuerySend(item)
                                 isSearchPerformed = true
                             }
-                            .padding(12.dp)
-                    )
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = item,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
                 }
             }
         }
 
         if (isSearchPerformed) {
-            LazyColumn {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(results) { item ->
-                    Text(
-                        text = "${item.name}; Rating: ${item.rating}",
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
                                 item.id?.let { onProductClick(it) }
                             }
-                            .padding(12.dp)
-                    )
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(text = item.name ?: "Без названия", style = MaterialTheme.typography.titleSmall)
+                            Text(text = "Рейтинг: ${item.rating ?: 0}/5", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
                 }
             }
         }
