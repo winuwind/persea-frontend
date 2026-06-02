@@ -98,4 +98,6 @@ dependencies {
     implementation(libs.androidx.exifinterface)
 
     implementation(libs.coil.compose)
+
+    implementation("com.google.zxing:core:3.5.4")
 }

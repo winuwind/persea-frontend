@@ -7,6 +7,7 @@ data class ProductResponse(
     val category: CategoryDto?,
     val rating: Int?,
     val imageURI: String?,
+    val barcode: String?,
     val numericFactors: List<NumericFactorDto>?,
     val booleanFactors: List<BooleanFactorDto>?,
     val enumFactors: List<EnumFactorDto>?

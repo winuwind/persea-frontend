@@ -1,10 +1,8 @@
 package ru.persea.frontend.data.api.users
 
-import android.content.Context
 import okhttp3.Interceptor
 import okhttp3.Response
 import ru.persea.frontend.data.api.auth.TokenManager
-import ru.persea.frontend.data.api.auth.TokenStorage
 
 class AuthInterceptor : Interceptor {
 
@@ -24,8 +22,6 @@ class AuthInterceptor : Interceptor {
 
         if (response.code == 401) {
             response.close()
-            // Токен истек, нужно обновить
-            // Возвращаем исходный запрос без токена
             val retryRequest = originalRequest.newBuilder()
                 .header("Authorization", "")
                 .build()
@@ -33,5 +29,46 @@ class AuthInterceptor : Interceptor {
         }
 
         return response
+    }
+
+    companion object {
+        private var cachedRoles: List<String>? = null
+
+        fun getUserRoles(): List<String> {
+            if (cachedRoles != null) return cachedRoles!!
+
+            val token = TokenManager.accessToken
+            if (token.isNullOrBlank()) return emptyList()
+
+            return try {
+                val parts = token.split(".")
+                if (parts.size == 3) {
+                    val payload = String(android.util.Base64.decode(parts[1], android.util.Base64.URL_SAFE))
+                    val json = org.json.JSONObject(payload)
+                    val realmAccess = json.optJSONObject("realm_access")
+                    val roles = realmAccess?.optJSONArray("roles")
+                    val roleList = mutableListOf<String>()
+                    if (roles != null) {
+                        for (i in 0 until roles.length()) {
+                            roles.optString(i)?.let { roleList.add(it) }
+                        }
+                    }
+                    cachedRoles = roleList
+                    roleList
+                } else {
+                    emptyList()
+                }
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
+
+        fun isAdmin(): Boolean = getUserRoles().contains("admin")
+
+        fun isModerator(): Boolean = getUserRoles().contains("moderator") || isAdmin()
+
+        fun clearRolesCache() {
+            cachedRoles = null
+        }
     }
 }

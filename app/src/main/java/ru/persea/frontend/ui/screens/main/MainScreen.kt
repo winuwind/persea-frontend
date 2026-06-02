@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ru.persea.frontend.ui.components.BottomBar
+import ru.persea.frontend.ui.screens.admin.AdminPanelScreen
 import ru.persea.frontend.ui.screens.details.ProductDetailScreen
 import ru.persea.frontend.ui.screens.factors.FactorsScreen
 import ru.persea.frontend.ui.screens.profile.ProfileScreen
@@ -55,7 +56,8 @@ fun MainScreen(navController: NavController) {
             composable("recommendations") { RecommendationScreen(navController) }
             composable("factors") { FactorsScreen() }
             composable("tops") { TopsScreen(navController) }
-            composable("studio") { StudioScreen() }
+            composable("studio") { StudioScreen(navController = navController) }
+            composable("admin") { AdminPanelScreen() }
 
             composable(
                 route = "product_detail/{productId}",

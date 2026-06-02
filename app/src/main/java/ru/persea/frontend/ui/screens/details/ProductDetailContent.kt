@@ -1,25 +1,34 @@
 package ru.persea.frontend.ui.screens.details
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+//import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.zxing.EncodeHintType
+import com.google.zxing.common.BitMatrix
 import ru.persea.frontend.data.model.products.*
 import ru.persea.frontend.ui.components.FactorGauge
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
 
 @Composable
 fun ProductDetailContent(
@@ -138,6 +147,74 @@ fun ProductDetailContent(
         } else {
             item {
                 Text("Нет данных", color = Color.Gray)
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Штрих-код",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (!product.barcode.isNullOrBlank()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Отображение штрих-кода в виде изображения (EAN-13 или CODE-128)
+                        BarcodeImage(
+                            barcode = product.barcode,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .padding(8.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = product.barcode,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            letterSpacing = 2.sp
+                        )
+
+                        Text(
+                            text = "Штрих-код продукта",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            } else {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Text(
+                        text = "Штрих-код не указан",
+                        modifier = Modifier.padding(16.dp),
+                        color = Color.Gray
+                    )
+                }
             }
         }
     }
@@ -289,5 +366,45 @@ fun InfoRow(label: String, value: String) {
     ) {
         Text(text = label, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Text(text = value, fontSize = 16.sp, color = Color.Gray)
+    }
+}
+
+@Composable
+fun BarcodeImage(barcode: String, modifier: Modifier = Modifier) {
+    val bitmap = remember(barcode) {
+        generateBarcodeBitmap(barcode)
+    }
+
+    bitmap?.let {
+        Image(
+            bitmap = it.asImageBitmap(),
+            contentDescription = "Штрих-код",
+            modifier = modifier
+        )
+    }
+}
+
+private fun generateBarcodeBitmap(barcode: String): Bitmap? {
+    return try {
+        val width = 600
+        val height = 200
+        val hints = mutableMapOf<EncodeHintType, Any>().apply {
+            put(EncodeHintType.MARGIN, 0)
+            put(EncodeHintType.CHARACTER_SET, "UTF-8")
+        }
+
+        val writer = MultiFormatWriter()
+        val bitMatrix: BitMatrix = writer.encode(barcode, BarcodeFormat.CODE_128, width, height, hints)
+
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                bitmap.setPixel(x, y, if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+            }
+        }
+        bitmap
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }

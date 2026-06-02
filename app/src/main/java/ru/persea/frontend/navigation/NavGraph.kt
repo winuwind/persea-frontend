@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ru.persea.frontend.data.api.auth.TokenStorage
 import ru.persea.frontend.data.api.auth.TokenManager
+import ru.persea.frontend.ui.screens.admin.AdminPanelScreen
 import ru.persea.frontend.ui.screens.auth.AuthWebViewScreen
 import ru.persea.frontend.ui.screens.auth.LoginScreen
 import ru.persea.frontend.ui.screens.details.ProductDetailScreen
@@ -51,22 +52,19 @@ fun AppNavGraph() {
     }
 
     NavHost(
-        navController = navController,
-        startDestination = if (isLoggedIn) "onboarding" else "login"
+        navController = navController, startDestination = if (isLoggedIn) "onboarding" else "login"
     ) {
         composable("login") {
             LoginScreen(
                 onNavigateToAuthWebView = {
                     navController.navigate("auth_webview")
-                },
-                viewModel = authViewModel
+                }, viewModel = authViewModel
             )
         }
 
         composable("auth_webview") {
             AuthWebViewScreen(
-                navController = navController,
-                onAuthSuccess = { code, codeVerifier ->
+                navController = navController, onAuthSuccess = { code, codeVerifier ->
                     authViewModel.exchangeCodeForToken(code, codeVerifier) {
                         try {
                             navController.navigate("onboarding") {
@@ -77,8 +75,7 @@ fun AppNavGraph() {
                             e.printStackTrace()
                         }
                     }
-                }
-            )
+                })
         }
 
         composable("onboarding") {
@@ -114,7 +111,11 @@ fun AppNavGraph() {
         }
 
         composable("studio") {
-            StudioScreen()
+            StudioScreen(navController = navController)
+        }
+
+        composable("admin") {
+            AdminPanelScreen()
         }
 
         composable(
@@ -123,8 +124,7 @@ fun AppNavGraph() {
         ) { backStackEntry ->
             val productId = backStackEntry.arguments?.getLong("productId")
             ProductDetailScreen(
-                productId = productId,
-                navController = navController
+                productId = productId, navController = navController
             )
         }
     }
