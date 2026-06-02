@@ -19,7 +19,9 @@ import ru.persea.frontend.ui.screens.profile.ProfileScreen
 import ru.persea.frontend.ui.screens.recommendation.RecommendationScreen
 import ru.persea.frontend.ui.screens.scan.ScanScreen
 import ru.persea.frontend.ui.screens.search.SearchScreen
+import ru.persea.frontend.ui.screens.studio.StudioScreen
 import ru.persea.frontend.ui.screens.support.SupportScreen
+import ru.persea.frontend.ui.screens.tops.TopsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -52,6 +54,8 @@ fun MainScreen(navController: NavController) {
             composable("profile") { ProfileScreen(navController) }
             composable("recommendations") { RecommendationScreen(navController) }
             composable("factors") { FactorsScreen() }
+            composable("tops") { TopsScreen(navController) }
+            composable("studio") { StudioScreen() }
 
             composable(
                 route = "product_detail/{productId}",

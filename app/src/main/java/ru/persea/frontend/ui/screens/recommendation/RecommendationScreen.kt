@@ -23,7 +23,7 @@ fun RecommendationScreen(
         viewModel.loadRecommendations()
     }
 
-    val feed = viewModel.feed
+    val products = viewModel.products
     val isLoading = viewModel.isLoading
     val error = viewModel.error
 
@@ -53,18 +53,25 @@ fun RecommendationScreen(
                         }
                     }
                 }
-                feed != null && feed.items != null && feed.items.isNotEmpty() -> {
+                products.isEmpty() -> {
+                    Text(
+                        text = "Нет рекомендаций",
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(feed.items) { item ->
+                        items(products) { product ->
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        item.product?.id?.let { productId ->
+                                        product.id?.let { productId ->
                                             navController.navigate("product_detail/$productId")
                                         }
                                     },
@@ -72,34 +79,18 @@ fun RecommendationScreen(
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text(
-                                        text = item.product?.name ?: "Без названия",
+                                        text = product.name ?: "Без названия",
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "Рейтинг: ${item.product?.rating ?: 0}/5",
+                                        text = "Рейтинг: ${product.rating ?: 0}/100",
                                         style = MaterialTheme.typography.bodySmall
-                                    )
-                                    Text(
-                                        text = "Причина: ${item.reason ?: "Не указана"}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = "Совпадение: ${String.format("%.1f", (item.score ?: 0.0) * 100)}%",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.secondary
                                     )
                                 }
                             }
                         }
                     }
-                }
-                else -> {
-                    Text(
-                        text = "Нет рекомендаций",
-                        modifier = Modifier.align(Alignment.Center)
-                    )
                 }
             }
         }

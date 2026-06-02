@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.ui)
+    implementation(libs.androidx.material3)
 
     // Tests
     testImplementation(libs.junit)
@@ -95,4 +96,6 @@ dependencies {
 
     // Для работы с изображениями
     implementation(libs.androidx.exifinterface)
+
+    implementation(libs.coil.compose)
 }

@@ -20,45 +20,28 @@ class BarcodeViewModel : ViewModel() {
 
     private var searchJob: Job? = null
 
-    // Callback для уведомления о завершении поиска
-    private var onProductFoundCallback: ((ProductDto?) -> Unit)? = null
-
     fun searchByBarcode(code: String, onComplete: (ProductDto?) -> Unit = {}) {
-        onProductFoundCallback = onComplete
+        if (code.isBlank()) {
+            onComplete(null)
+            return
+        }
 
         searchJob?.cancel()
 
         searchJob = viewModelScope.launch {
-            delay(300)
             isLoading = true
-
-            if (code.isBlank()) {
-                product = null
-                isLoading = false
-                onComplete(null)
-                return@launch
-            }
+            product = null
 
             try {
-                product = ProductRetrofitClient.api.getProductsByBarcode(code)
+                val result = ProductRetrofitClient.api.getProductsByBarcode(code)
+                product = result
                 isLoading = false
-                onComplete(product)
+                onComplete(result)
             } catch (e: Exception) {
                 product = null
                 isLoading = false
                 onComplete(null)
             }
-        }
-    }
-
-    // Альтернативный метод с suspend функцией
-    suspend fun searchByBarcodeSuspend(code: String): ProductDto? {
-        return try {
-            delay(300)
-            if (code.isBlank()) null
-            else ProductRetrofitClient.api.getProductsByBarcode(code)
-        } catch (e: Exception) {
-            null
         }
     }
 }

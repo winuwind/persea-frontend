@@ -7,11 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ru.persea.frontend.data.api.recommendation.RecommendationRetrofitClient
-import ru.persea.frontend.data.model.recommendation.RecommendationFeed
+import ru.persea.frontend.data.model.products.ProductDto
 
 class RecommendationViewModel : ViewModel() {
 
-    var feed by mutableStateOf<RecommendationFeed?>(null)
+    var products by mutableStateOf<List<ProductDto>>(emptyList())
         private set
     var isLoading by mutableStateOf(false)
         private set
@@ -24,7 +24,7 @@ class RecommendationViewModel : ViewModel() {
             error = null
 
             try {
-                feed = RecommendationRetrofitClient.api.getRecommendationFeed(limit = 20)
+                products = RecommendationRetrofitClient.api.getRecommendationFeed(limit = 20)
             } catch (e: Exception) {
                 error = e.message
             } finally {

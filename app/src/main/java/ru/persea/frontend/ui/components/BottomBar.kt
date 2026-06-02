@@ -23,6 +23,7 @@ fun BottomBar(navController: NavController) {
         BottomItem("scan", Icons.Default.QrCodeScanner, "Scan"),
         BottomItem("search", Icons.Default.Search, "Search"),
         BottomItem("recommendations", Icons.Default.Recommend, "For You"),
+        BottomItem("tops", Icons.Default.Star, "Tops"),
         BottomItem("factors", Icons.Default.BarChart, "Factors"),
         BottomItem("profile", Icons.Default.Person, "Profile")
     )

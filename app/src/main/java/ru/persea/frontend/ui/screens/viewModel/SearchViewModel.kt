@@ -33,10 +33,9 @@ class SearchViewModel : ViewModel() {
                 return@launch
             }
 
-            val encoded = encodeBase64(query)
-
             try {
-                suggestions = ProductRetrofitClient.api.getSuggestions(encoded)
+                val encoded = encodeBase64(query)
+                suggestions = ProductRetrofitClient.api.getSuggestions(encoded, 5)
             } catch (e: Exception) {
                 suggestions = emptyList()
             }
@@ -54,16 +53,15 @@ class SearchViewModel : ViewModel() {
                 return@launch
             }
 
-            val encoded = encodeBase64(query)
-
             try {
+                val encoded = encodeBase64(query)
                 results = ProductRetrofitClient.api.getProducts(
                     query = encoded,
                     categoryId = null,
                     brandIds = null,
                     minRating = null,
                     maxRating = null,
-                    page = 1,
+                    page = 0,
                     size = 100
                 )
             } catch (e: Exception) {

@@ -34,12 +34,17 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.persea.frontend.data.api.auth.TokenStorage
 import ru.persea.frontend.navigation.AppNavGraph
 import ru.persea.frontend.ui.theme.PerseaTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val prefs = getSharedPreferences("persea_prefs", MODE_PRIVATE)
+        prefs.edit().clear().apply()
+        TokenStorage(applicationContext).clearTokens()
 
         setContent {
             PerseaTheme {

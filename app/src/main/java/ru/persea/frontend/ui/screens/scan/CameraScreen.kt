@@ -50,7 +50,6 @@ fun CameraScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // Камера с анализатором штрих-кодов
         AndroidView(
             factory = { ctx ->
                 val previewView = PreviewView(ctx)

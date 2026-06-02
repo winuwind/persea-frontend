@@ -22,6 +22,8 @@ import ru.persea.frontend.ui.screens.history.HistoryScreen
 import ru.persea.frontend.ui.screens.main.MainScreen
 import ru.persea.frontend.ui.screens.onboarding.OnboardingScreen
 import ru.persea.frontend.ui.screens.recommendation.RecommendationScreen
+import ru.persea.frontend.ui.screens.studio.StudioScreen
+import ru.persea.frontend.ui.screens.tops.TopsScreen
 import ru.persea.frontend.ui.screens.viewModel.AuthViewModel
 import ru.persea.frontend.ui.screens.viewModel.AuthViewModelFactory
 
@@ -96,7 +98,7 @@ fun AppNavGraph() {
         }
 
         composable("history") {
-            HistoryScreen()
+            HistoryScreen(navController = navController)
         }
 
         composable("recommendations") {
@@ -105,6 +107,14 @@ fun AppNavGraph() {
 
         composable("factors") {
             FactorsScreen()
+        }
+
+        composable("tops") {
+            TopsScreen(navController)
+        }
+
+        composable("studio") {
+            StudioScreen()
         }
 
         composable(

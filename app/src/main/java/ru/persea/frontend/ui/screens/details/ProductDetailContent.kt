@@ -13,10 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import ru.persea.frontend.data.model.products.*
+import ru.persea.frontend.ui.components.FactorGauge
 
 @Composable
 fun ProductDetailContent(
@@ -27,6 +30,7 @@ fun ProductDetailContent(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
+            .fillMaxWidth()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -87,7 +91,7 @@ fun ProductDetailContent(
 
         if (!product.numericFactors.isNullOrEmpty()) {
             items(product.numericFactors) { factor ->
-                NumericFactorCard(factor = factor)
+                FactorGauge(factor = factor)
             }
         } else {
             item {
@@ -149,8 +153,13 @@ fun ProductImage(imageUri: String?) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            if (imageUri != null) {
-                Text("Изображение: $imageUri")
+            if (!imageUri.isNullOrEmpty()) {
+                AsyncImage(
+                    model = imageUri,
+                    contentDescription = "Product image",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
             } else {
                 Text("Нет изображения")
             }
@@ -185,46 +194,10 @@ fun ProductRating(rating: Int?) {
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = "${rating ?: 0}/5",
+            text = "${rating ?: 0}/100",
             fontSize = 16.sp,
             color = Color.Gray
         )
-    }
-}
-
-@Composable
-fun NumericFactorCard(factor: NumericFactorDto) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = factor.factorName ?: "Неизвестно",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Значение: ${factor.amount} ${factor.unitName ?: ""}",
-                fontSize = 14.sp
-            )
-            if (factor.minValue != null && factor.maxValue != null) {
-                Text(
-                    text = "Норма: ${factor.minValue} - ${factor.maxValue} ${factor.unitName ?: ""}",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-            }
-        }
     }
 }
 
@@ -250,11 +223,16 @@ fun BooleanFactorCard(factor: BooleanFactorDto) {
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
-            Text(
-                text = if (factor.value == true) "✓ Да" else "✗ Нет",
-                fontSize = 14.sp,
-                color = if (factor.value == true) Color.Green else Color.Red
+            Box(
+                modifier = Modifier.width(20.dp)
             )
+            {
+                Text(
+                    text = if (factor.value == true) "✓ Да" else "✗ Нет",
+                    fontSize = 14.sp,
+                    color = if (factor.value == true) Color.Green else Color.Red
+                )
+            }
         }
         if (factor.impact != null && factor.impact != 0) {
             Text(
