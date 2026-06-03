@@ -191,4 +191,19 @@ interface ProductApiService {
 
     @DELETE("/products/brands/{id}")
     suspend fun deleteBrand(@Path("id") id: Long)
+
+    // Category management
+    @GET("/products/categories")
+    suspend fun getAllCategories(): List<CategoryDto>
+
+    // Brand management
+    @GET("/products/brands")
+    suspend fun getAllBrands(): List<BrandDto>
+
+    // Product management
+    @GET("/products")
+    suspend fun getAllProducts(
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 100
+    ): List<ProductDto>
 }

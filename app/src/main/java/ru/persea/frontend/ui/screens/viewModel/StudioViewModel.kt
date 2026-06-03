@@ -104,7 +104,7 @@ class StudioViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val category = ProductRetrofitClient.api.createCategory(
-                    CategoryDto(id = null, name = name)
+                    CategoryDto(id = null, name = name, code = code)
                 )
                 _message.value = "Категория создана: ${category.name}"
                 _categoryName.value = ""

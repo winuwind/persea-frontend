@@ -24,7 +24,7 @@ object UserRetrofitClient {
 
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor())
+            .addInterceptor(AuthInterceptor(appContext))
             .addInterceptor(loggingInterceptor)
             .authenticator(TokenAuthenticator(appContext))
             .build()

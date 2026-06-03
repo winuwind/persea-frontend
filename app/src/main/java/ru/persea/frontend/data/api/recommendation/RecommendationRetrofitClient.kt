@@ -21,7 +21,7 @@ object RecommendationRetrofitClient {
 
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor())
+            .addInterceptor(AuthInterceptor(appContext))
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })

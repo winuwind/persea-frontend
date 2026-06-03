@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -63,8 +62,11 @@ fun ProfileScreen(
     val favorites = profileViewModel.favorites
 
     fun logout() {
+        // Полный выход с очисткой всех данных
         authViewModel.logout()
         isLoggedIn = false
+
+        // Сброс навигации и переход на экран входа
         navController.navigate("login") {
             popUpTo(0) { inclusive = true }
         }

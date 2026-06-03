@@ -4,7 +4,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -14,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ru.persea.frontend.data.api.auth.TokenStorage
 import ru.persea.frontend.data.api.auth.TokenManager
+import ru.persea.frontend.data.api.users.AuthInterceptor
 import ru.persea.frontend.ui.screens.admin.AdminPanelScreen
 import ru.persea.frontend.ui.screens.auth.AuthWebViewScreen
 import ru.persea.frontend.ui.screens.auth.LoginScreen
@@ -38,33 +42,41 @@ fun AppNavGraph() {
         factory = AuthViewModelFactory(context)
     )
 
-    var isLoggedIn = tokenStorage.isLoggedIn()
+    var isLoggedIn by remember { mutableStateOf(tokenStorage.isLoggedIn()) }
+    var isAdmin by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         TokenManager.onTokenChanged = { newToken ->
             isLoggedIn = newToken != null
+            isAdmin = AuthInterceptor.isAdmin()
             if (newToken == null) {
                 navController.navigate("login") {
                     popUpTo(0) { inclusive = true }
                 }
             }
         }
+
+        // Начальное обновление ролей
+        isAdmin = AuthInterceptor.isAdmin()
     }
 
     NavHost(
-        navController = navController, startDestination = if (isLoggedIn) "onboarding" else "login"
+        navController = navController,
+        startDestination = if (isLoggedIn) "onboarding" else "login"
     ) {
         composable("login") {
             LoginScreen(
                 onNavigateToAuthWebView = {
                     navController.navigate("auth_webview")
-                }, viewModel = authViewModel
+                },
+                viewModel = authViewModel
             )
         }
 
         composable("auth_webview") {
             AuthWebViewScreen(
-                navController = navController, onAuthSuccess = { code, codeVerifier ->
+                navController = navController,
+                onAuthSuccess = { code, codeVerifier ->
                     authViewModel.exchangeCodeForToken(code, codeVerifier) {
                         try {
                             navController.navigate("onboarding") {
@@ -75,7 +87,8 @@ fun AppNavGraph() {
                             e.printStackTrace()
                         }
                     }
-                })
+                }
+            )
         }
 
         composable("onboarding") {
@@ -114,8 +127,11 @@ fun AppNavGraph() {
             StudioScreen(navController = navController)
         }
 
-        composable("admin") {
-            AdminPanelScreen()
+        // Только для admin
+        if (isAdmin) {
+            composable("admin") {
+                AdminPanelScreen()
+            }
         }
 
         composable(
@@ -124,7 +140,8 @@ fun AppNavGraph() {
         ) { backStackEntry ->
             val productId = backStackEntry.arguments?.getLong("productId")
             ProductDetailScreen(
-                productId = productId, navController = navController
+                productId = productId,
+                navController = navController
             )
         }
     }

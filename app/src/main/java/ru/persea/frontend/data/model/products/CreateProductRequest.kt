@@ -5,6 +5,7 @@ data class CreateProductRequest(
     val categoryId: Long?,
     val brandId: Long?,
     val imageURI: String?,
+    val barcode: String?,
     val numericFactors: List<NumericFactorInput>?,
     val booleanFactors: List<BooleanFactorInput>?,
     val enumFactors: List<EnumFactorInput>?

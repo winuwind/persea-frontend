@@ -11,12 +11,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import ru.persea.frontend.config.AppConfig
 import ru.persea.frontend.utils.PKCEHelper
 
@@ -27,6 +30,7 @@ fun AuthWebViewScreen(
     onAuthSuccess: (String, String) -> Unit
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val config = remember { AppConfig.getInstance() }
     val authConfig = config.auth
 
@@ -41,28 +45,32 @@ fun AuthWebViewScreen(
             "code_challenge=$codeChallenge&" +
             "code_challenge_method=S256"
 
+    // Очищаем куки при каждом входе
+    LaunchedEffect(Unit) {
+        android.webkit.CookieManager.getInstance().removeAllCookies(null)
+        android.webkit.CookieManager.getInstance().flush()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Вход") })
         }
-    ) { paddingValues ->
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
-                factory = { context ->
-                    WebView(context).apply {
+                factory = { ctx ->
+                    WebView(ctx).apply {
                         settings.javaScriptEnabled = true
                         webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                super.onPageFinished(view, url)
-                            }
-
                             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                                 url?.let {
                                     if (it.startsWith("https://oauth.pstmn.io/v1/callback")) {
                                         val uri = Uri.parse(it)
                                         val code = uri.getQueryParameter("code")
                                         code?.let { authCode ->
-                                            onAuthSuccess(authCode, codeVerifier)
+                                            scope.launch {
+                                                onAuthSuccess(authCode, codeVerifier)
+                                            }
                                         }
                                         return true
                                     }

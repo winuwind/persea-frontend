@@ -100,4 +100,6 @@ dependencies {
     implementation(libs.coil.compose)
 
     implementation("com.google.zxing:core:3.5.4")
+
+    implementation("com.google.code.gson:gson:2.14.0")
 }
